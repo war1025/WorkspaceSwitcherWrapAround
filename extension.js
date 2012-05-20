@@ -8,6 +8,8 @@ const WorkspaceSwitcherPopup = imports.ui.workspaceSwitcherPopup;
 
 let oldUp = "";
 let oldDown = "";
+let oldLeft = "";
+let oldRight = "";
 
 
 function wrapAroundDown() {
@@ -46,14 +48,20 @@ function wrapAroundUp() {
 function init() {
 	oldUp = Main.wm.actionMoveWorkspaceUp;
 	oldDown = Main.wm.actionMoveWorkspaceDown;
+	oldLeft = Main.wm.actionMoveWorkspaceLeft;
+	oldRight = Main.wm.actionMoveWorkspaceRight;
 }
 
 function enable() {
+	Main.wm.actionMoveWorkspaceLeft = wrapAroundUp;
 	Main.wm.actionMoveWorkspaceUp = wrapAroundUp;
+	Main.wm.actionMoveWorkspaceRight = wrapAroundDown;
 	Main.wm.actionMoveWorkspaceDown = wrapAroundDown;
 }
 
 function disable() {
+	Main.wm.actionMoveWorkspaceLeft = oldLeft;
 	Main.wm.actionMoveWorkspaceUp = oldUp;
+	Main.wm.actionMoveWorkspaceRight = oldRight;
 	Main.wm.actionMoveWorkspaceDown = oldDown;
 }
