@@ -6,62 +6,53 @@ const IconGrid = imports.ui.iconGrid;
 const GLib = imports.gi.GLib;
 const WorkspaceSwitcherPopup = imports.ui.workspaceSwitcherPopup;
 
-let oldUp = "";
-let oldDown = "";
-let oldLeft = "";
-let oldRight = "";
+function lastWSIndex() { return global.screen.n_workspaces - 1 }
 
-
-function wrapAroundDown() {
-	let activeWorkspaceIndex = global.screen.get_active_workspace_index();
-	let indexToActivate = activeWorkspaceIndex;
-	if (activeWorkspaceIndex < global.screen.n_workspaces - 1) {
-		indexToActivate++;
-	} else {
-		indexToActivate = 0;
+function indexDown(activeWorkspaceIndex) {
+	if ( activeWorkspaceIndex < lastWSIndex() ) {
+		return activeWorkspaceIndex + 1;
 	}
-
-	if (indexToActivate != activeWorkspaceIndex)
-		global.screen.get_workspace_by_index(indexToActivate).activate(global.get_current_time());
-
-	if (!Main.overview.visible)
-		this._workspaceSwitcherPopup.display(WorkspaceSwitcherPopup.DOWN, indexToActivate);
+  return 0;
 }
 
-
-function wrapAroundUp() {
-	let activeWorkspaceIndex = global.screen.get_active_workspace_index();
-	let indexToActivate = activeWorkspaceIndex;
+function indexUp(activeWorkspaceIndex) {
 	if (activeWorkspaceIndex > 0) {
-		indexToActivate--;
-	} else {
-		indexToActivate = global.screen.n_workspaces - 1;
-	}
-
-	if (indexToActivate != activeWorkspaceIndex)
-		global.screen.get_workspace_by_index(indexToActivate).activate(global.get_current_time());
-
-	if (!Main.overview.visible)
-		this._workspaceSwitcherPopup.display(WorkspaceSwitcherPopup.UP, indexToActivate);
+    return activeWorkspaceIndex - 1;
+  }
+  return lastWSIndex();
 }
+
+let chooseIndex = { Up: indexUp, Left: indexUp, Down: indexDown, Right: indexDown };
+
+function wrapAround(dir) {
+  return function() {
+    let activeWorkspaceIndex = global.screen.get_active_workspace_index();
+    let indexToActivate = chooseIndex[dir](activeWorkspaceIndex);
+
+    if (indexToActivate != activeWorkspaceIndex)
+      global.screen.get_workspace_by_index(indexToActivate).activate(global.get_current_time());
+
+    if (!Main.overview.visible)
+      this._workspaceSwitcherPopup.display(WorkspaceSwitcherPopup.UP, indexToActivate);
+  }
+}
+
+let old = {};
 
 function init() {
-	oldUp = Main.wm.actionMoveWorkspaceUp;
-	oldDown = Main.wm.actionMoveWorkspaceDown;
-	oldLeft = Main.wm.actionMoveWorkspaceLeft;
-	oldRight = Main.wm.actionMoveWorkspaceRight;
+  ['Left', 'Right', 'Up', 'Down'].forEach(function(dir) {
+    old[dir] = Main.wm['actionMoveWorkspace' + dir];
+  });
 }
 
 function enable() {
-	Main.wm.actionMoveWorkspaceLeft = wrapAroundUp;
-	Main.wm.actionMoveWorkspaceUp = wrapAroundUp;
-	Main.wm.actionMoveWorkspaceRight = wrapAroundDown;
-	Main.wm.actionMoveWorkspaceDown = wrapAroundDown;
+  ['Left', 'Right', 'Up', 'Down'].forEach(function(dir) {
+    Main.wm['actionMoveWorkspace' + dir] = wrapAround(dir);
+  });
 }
 
 function disable() {
-	Main.wm.actionMoveWorkspaceLeft = oldLeft;
-	Main.wm.actionMoveWorkspaceUp = oldUp;
-	Main.wm.actionMoveWorkspaceRight = oldRight;
-	Main.wm.actionMoveWorkspaceDown = oldDown;
+  ['Left', 'Right', 'Up', 'Down'].forEach(function(dir) {
+    Main.wm['actionMoveWorkspace' + dir] = old[dir];
+  });
 }
