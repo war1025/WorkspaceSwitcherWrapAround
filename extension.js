@@ -23,6 +23,11 @@ function indexUp(activeWorkspaceIndex) {
 }
 
 let chooseIndex = { Up: indexUp, Left: indexUp, Down: indexDown, Right: indexDown };
+let chooseDir = { 	Up   : WorkspaceSwitcherPopup.UP,
+					Down : WorkspaceSwitcherPopup.DOWN,
+					Left : WorkspaceSwitcherPopup.UP,
+					Right: WorkspaceSwitcherPopup.DOWN
+				};
 
 function wrapAround(dir) {
   return function() {
@@ -33,7 +38,7 @@ function wrapAround(dir) {
       global.screen.get_workspace_by_index(indexToActivate).activate(global.get_current_time());
 
     if (!Main.overview.visible)
-      this._workspaceSwitcherPopup.display(WorkspaceSwitcherPopup.UP, indexToActivate);
+      this._workspaceSwitcherPopup.display(chooseDir[dir], indexToActivate);
   }
 }
 
