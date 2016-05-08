@@ -1,5 +1,5 @@
 {
-	"shell-version": ["3.6", "3.8"],
+	"shell-version": ["3.6", "3.8", "3.10", "3.18"],
 	"uuid": "workspace-switcher-wrapAround@wrowclif.org",
 	"name": "Workspace Switcher WrapAround",
 	"description": "When switching workspaces, going down from the bottom workspace switches to the top workspace. Likewise, up from the top workspace goes to the bottom workspace.",
